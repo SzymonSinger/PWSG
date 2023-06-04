@@ -79,10 +79,16 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+<<<<<<< HEAD
         rb2D.velocity = Vector3.Reflect(vel, collision.contacts[0].normal);
         Vector3 newVelocityWithOffset = rb2D.velocity;
         newVelocityWithOffset += new Vector3(Random.Range(-.5f, .5f), Random.Range(-.5f, .5f));
         rb2D.velocity = newVelocityWithOffset.normalized * speed;
+=======
+        Vector3 newVelocity = vel;
+        newVelocity += new Vector3(Random.Range(-.5f, .5f), Random.Range(-.5f, .5f));
+        rb2D.velocity = Vector3.Reflect(newVelocity.normalized * speed, collision.contacts[0].normal);
+>>>>>>> Develop
         vel = rb2D.velocity;
     }
 
