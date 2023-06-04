@@ -1,0 +1,107 @@
+using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using TMPro;
+
+public class BallController : MonoBehaviour
+{
+    private Rigidbody2D rb2D;
+    private TextMeshProUGUI textMeshPro;
+
+    bool ingame;
+    int P1ScoreValue = 0;
+    int P2ScoreValue = 0;
+
+    public float speed;
+    public Vector3 vel;
+    public GameObject P1Score;
+    public GameObject P2Score;
+    public GameObject TextWindow;
+
+    
+    // Start is called before the first frame update
+    void Start()
+    {
+        rb2D = GetComponent<Rigidbody2D>();
+        textMeshPro = GetComponent<TextMeshProUGUI>();
+        ResetAndSendBallInRandomDirection();
+    }
+    private void Update()
+    {
+        if (P1ScoreValue == 5) 
+        {
+            ingame = false;
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "Player One Win";
+            if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetGame();
+        }
+        if (P2ScoreValue == 5)
+        {
+            ingame = false;
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "Player Two Win";
+            if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetGame();
+        }
+        if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetAndSendBallInRandomDirection();
+    }
+
+    private void ResetGame()
+    {
+        P1ScoreValue = 0;
+        P2ScoreValue = 0;
+        P1Score.GetComponent<TextMeshProUGUI>().text = "0";
+        P2Score.GetComponent<TextMeshProUGUI>().text = "0";
+        ResetAndSendBallInRandomDirection();
+    }
+
+    private void ResetBall()
+    {
+        rb2D.velocity = Vector3.zero;
+        transform.position = Vector3.zero;
+        ingame = true;
+    }
+    private void ResetAndSendBallInRandomDirection()
+    {
+        ResetBall();
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "";
+            rb2D.velocity = GenerateRandomVelocity(true) * speed;
+            vel = rb2D.velocity;
+            
+    }
+    private Vector3 GenerateRandomVelocity(bool shouldReturnNormalized)
+    {
+        Vector3 velocity = new Vector3();
+        bool shouldGoRight = Random.Range(1, 100) > 50;
+        bool shouldGoUp = Random.Range(1, 100) > 50;
+        velocity.x = shouldGoRight ? Random.Range(-.8f, -.3f) : Random.Range(.8f, .3f);
+        velocity.y = shouldGoUp ? Random.Range(-.8f, -.3f) : Random.Range(.8f, .3f);
+
+        return shouldReturnNormalized ? velocity.normalized : velocity;
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        Vector3 newVelocity = vel;
+        newVelocity += new Vector3(Random.Range(-.5f, .5f), Random.Range(-.5f, .5f));
+        rb2D.velocity = Vector3.Reflect(newVelocity.normalized * speed, collision.contacts[0].normal);
+        vel = rb2D.velocity;
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (transform.position.x > 0)
+        {
+            P1ScoreValue++;
+            P1Score.GetComponent<TextMeshProUGUI>().text = P1ScoreValue.ToString();
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "Player One Score";
+        }
+
+        if (transform.position.x <0)
+        {
+            P2ScoreValue++;
+            P2Score.GetComponent<TextMeshProUGUI>().text = P2ScoreValue.ToString();
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "Player Two Score";
+        }
+
+        ResetBall();
+        ingame = false;
+    }
+}
