@@ -8,6 +8,8 @@ TagManager:
   - Ball
   - Score_P2
   - Score_P1
+  - Red
+  - Blue
   layers:
   - Default
   - TransparentFX

@@ -7,37 +7,42 @@ public class BallController : MonoBehaviour
 {
     private Rigidbody2D rb2D;
     private TextMeshProUGUI textMeshPro;
+    private SpriteRenderer spriteRenderer;
 
     bool ingame;
     int P1ScoreValue = 0;
     int P2ScoreValue = 0;
 
     public float speed;
-    public Vector3 vel;
+    private Vector3 vel;
     public GameObject P1Score;
     public GameObject P2Score;
     public GameObject TextWindow;
+    public string PlayerReflected;
 
     
     // Start is called before the first frame update
     void Start()
     {
+        P1Score.GetComponent<TextMeshProUGUI>().color = Color.red;
+        P2Score.GetComponent<TextMeshProUGUI>().color = Color.blue;
         rb2D = GetComponent<Rigidbody2D>();
         textMeshPro = GetComponent<TextMeshProUGUI>();
         ResetAndSendBallInRandomDirection();
+        spriteRenderer = GetComponent<SpriteRenderer>();
     }
     private void Update()
     {
         if (P1ScoreValue == 5) 
         {
             ingame = false;
-            TextWindow.GetComponent<TextMeshProUGUI>().text = "Player One Win";
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "Red Win";
             if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetGame();
         }
         if (P2ScoreValue == 5)
         {
             ingame = false;
-            TextWindow.GetComponent<TextMeshProUGUI>().text = "Player Two Win";
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "Blue Win";
             if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetGame();
         }
         if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetAndSendBallInRandomDirection();
@@ -54,6 +59,7 @@ public class BallController : MonoBehaviour
 
     private void ResetBall()
     {
+        this.GetComponent<SpriteRenderer>().color = Color.white;
         rb2D.velocity = Vector3.zero;
         transform.position = Vector3.zero;
         ingame = true;
@@ -64,7 +70,6 @@ public class BallController : MonoBehaviour
             TextWindow.GetComponent<TextMeshProUGUI>().text = "";
             rb2D.velocity = GenerateRandomVelocity(true) * speed;
             vel = rb2D.velocity;
-            
     }
     private Vector3 GenerateRandomVelocity(bool shouldReturnNormalized)
     {
@@ -79,6 +84,16 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (collision.gameObject.CompareTag("Red"))
+        {
+            spriteRenderer.color = Color.red;
+            PlayerReflected = "Red";
+        }
+        if(collision.gameObject.CompareTag("Blue"))
+        {
+            spriteRenderer.color = Color.blue;
+            PlayerReflected = "Blue";
+        }
         rb2D.velocity = Vector3.Reflect(vel, collision.contacts[0].normal);
         Vector3 newVelocityWithOffset = rb2D.velocity;
         newVelocityWithOffset += new Vector3(Random.Range(-.5f, .5f), Random.Range(-.5f, .5f));
@@ -92,14 +107,16 @@ public class BallController : MonoBehaviour
         {
             P1ScoreValue++;
             P1Score.GetComponent<TextMeshProUGUI>().text = P1ScoreValue.ToString();
-            TextWindow.GetComponent<TextMeshProUGUI>().text = "Player One Score";
+            TextWindow.GetComponent<TextMeshProUGUI>().color = Color.red;
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "Red Score";
         }
 
         if (transform.position.x <0)
         {
             P2ScoreValue++;
             P2Score.GetComponent<TextMeshProUGUI>().text = P2ScoreValue.ToString();
-            TextWindow.GetComponent<TextMeshProUGUI>().text = "Player Two Score";
+            TextWindow.GetComponent <TextMeshProUGUI>().color = Color.blue;
+            TextWindow.GetComponent<TextMeshProUGUI>().text = "Blue Score";
         }
 
         ResetBall();
