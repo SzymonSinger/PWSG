@@ -15,24 +15,38 @@ public class BallController : MonoBehaviour
 
     public float speed;
     private Vector3 vel;
+
+//    private List<GameObject> clonedBalls = new List<GameObject>();
+
+    public GameObject RedPlayer;
+    public GameObject BluePlayer;
     public GameObject P1Score;
     public GameObject P2Score;
     public GameObject TextWindow;
     public string PlayerReflected;
 
-    
+    private Vector3 RedOrginalScale;
+    private Vector3 BlueOrginalScale;
+    private Vector3 SizeUp;
+    private Vector3 SizeDown;
+
+
     // Start is called before the first frame update
     void Start()
     {
+        RedOrginalScale = RedPlayer.transform.localScale;
+        BlueOrginalScale = BluePlayer.transform.localScale;
+        SizeUp = new Vector3(0f, .5f, 0f);
+        SizeDown = new Vector3(0f, -.5f, 0f);
         P1Score.GetComponent<TextMeshProUGUI>().color = Color.red;
         P2Score.GetComponent<TextMeshProUGUI>().color = Color.blue;
         rb2D = GetComponent<Rigidbody2D>();
         textMeshPro = GetComponent<TextMeshProUGUI>();
-        ResetAndSendBallInRandomDirection();
         spriteRenderer = GetComponent<SpriteRenderer>();
     }
     private void Update()
     {
+        ScaleCorrector();
         if (P1ScoreValue == 5) 
         {
             ingame = false;
@@ -56,9 +70,27 @@ public class BallController : MonoBehaviour
         P2Score.GetComponent<TextMeshProUGUI>().text = "0";
         ResetAndSendBallInRandomDirection();
     }
-
+   /* private void ResetClones()
+    {
+        foreach (GameObject clonedBall in clonedBalls)
+        {
+            Destroy(clonedBall);
+        }
+        clonedBalls.Clear();
+    }
+   */
+    private void ScaleCorrector()
+    {
+        if (RedPlayer.transform.localScale.y > 3f) { RedPlayer.transform.localScale = new Vector3(1f, 3f, 1f); }
+        if (BluePlayer.transform.localScale.y > 3f) { BluePlayer.transform.localScale = new Vector3(1f, 3f, 1f); }
+        if (BluePlayer.transform.localScale.y < .5f) { BluePlayer.transform.localScale = new Vector3(1f, 0.5f, 1f); }
+        if (RedPlayer.transform.localScale.y < .5f) { RedPlayer.transform.localScale = new Vector3(1f, 0.5f, 1f); }
+    }
     private void ResetBall()
     {
+        speed = 6;
+        RedPlayer.transform.localScale = RedOrginalScale;
+        BluePlayer.transform.localScale = BlueOrginalScale;
         this.GetComponent<SpriteRenderer>().color = Color.white;
         rb2D.velocity = Vector3.zero;
         transform.position = Vector3.zero;
@@ -67,6 +99,7 @@ public class BallController : MonoBehaviour
     private void ResetAndSendBallInRandomDirection()
     {
         ResetBall();
+ //       ResetClones();
             TextWindow.GetComponent<TextMeshProUGUI>().text = "";
             rb2D.velocity = GenerateRandomVelocity(true) * speed;
             vel = rb2D.velocity;
@@ -103,23 +136,74 @@ public class BallController : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (transform.position.x > 0)
+        if(collision.CompareTag("Score_P1") || collision.CompareTag("Score_P2"))
         {
-            P1ScoreValue++;
-            P1Score.GetComponent<TextMeshProUGUI>().text = P1ScoreValue.ToString();
-            TextWindow.GetComponent<TextMeshProUGUI>().color = Color.red;
-            TextWindow.GetComponent<TextMeshProUGUI>().text = "Red Score";
+            if (collision.CompareTag("Score_P1"))
+            {
+                P1ScoreValue++;
+                P1Score.GetComponent<TextMeshProUGUI>().text = P1ScoreValue.ToString();
+                TextWindow.GetComponent<TextMeshProUGUI>().color = Color.red;
+                TextWindow.GetComponent<TextMeshProUGUI>().text = "Red Score";
+            }
+
+            if (collision.CompareTag("Score_P2"))
+            {
+                P2ScoreValue++;
+                P2Score.GetComponent<TextMeshProUGUI>().text = P2ScoreValue.ToString();
+                TextWindow.GetComponent<TextMeshProUGUI>().color = Color.blue;
+                TextWindow.GetComponent<TextMeshProUGUI>().text = "Blue Score";
+            }
+
+            ResetBall();
+           // ResetClones();
+            ingame = false;
         }
 
-        if (transform.position.x <0)
+       /* if (collision.CompareTag("BallClone"))
         {
-            P2ScoreValue++;
-            P2Score.GetComponent<TextMeshProUGUI>().text = P2ScoreValue.ToString();
-            TextWindow.GetComponent <TextMeshProUGUI>().color = Color.blue;
-            TextWindow.GetComponent<TextMeshProUGUI>().text = "Blue Score";
-        }
+            if(PlayerReflected == "Red" || PlayerReflected == "Blue")
+            {
+            GameObject ballClone = Instantiate(this.gameObject, transform.position, transform.rotation);
+            clonedBalls.Add(ballClone);
+            Rigidbody2D cloneRigibody = ballClone.GetComponent<Rigidbody2D>();
+            cloneRigibody.velocity = rb2D.velocity;
+            }
 
-        ResetBall();
-        ingame = false;
+        }*/
+        if (collision.CompareTag("SizeUp"))
+        {
+            if(PlayerReflected == "Blue")
+            {
+
+                    BluePlayer.transform.localScale += SizeUp;
+
+            }
+            else if(PlayerReflected == "Red")
+            {
+                
+                    RedPlayer.transform.localScale += SizeUp;
+
+            }
+        }
+        else if (collision.CompareTag("SizeDown"))
+        {
+            if (PlayerReflected == "Blue")
+            {
+
+                    RedPlayer.transform.localScale += SizeDown;
+
+            }
+            else if(PlayerReflected == "Red")
+            {
+
+                    BluePlayer.transform.localScale += SizeDown;
+
+            }
+
+        }
+        else if(collision.CompareTag("SpeedUp"))
+        {
+            speed += 2;
+        }
     }
 }

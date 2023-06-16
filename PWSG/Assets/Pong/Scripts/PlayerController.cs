@@ -17,11 +17,11 @@ public class PlayerController : MonoBehaviour
 
     void Controller()
     {
-        if (Input.GetKey(UpKey) && transform.position.y < 3.8f)
+        if (Input.GetKey(UpKey))
         {
             transform.position += Vector3.up * Time.deltaTime * PlayerSpeed;
         }
-        if (Input.GetKey(DownKey) && transform.position.y > -3.8f)
+        if (Input.GetKey(DownKey))
         {
             transform.position += Vector3.down * Time.deltaTime * PlayerSpeed;
         }

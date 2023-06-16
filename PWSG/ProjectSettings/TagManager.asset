@@ -10,6 +10,10 @@ TagManager:
   - Score_P1
   - Red
   - Blue
+  - SpeedUp
+  - SizeDown
+  - SizeUp
+  - BallClone
   layers:
   - Default
   - TransparentFX
