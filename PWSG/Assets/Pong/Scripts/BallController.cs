@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Video;
 
 public class BallController : MonoBehaviour
 {
@@ -29,6 +30,7 @@ public class BallController : MonoBehaviour
     private Vector3 BlueOrginalScale;
     private Vector3 SizeUp;
     private Vector3 SizeDown;
+    private AudioSource audio;
 
 
     // Start is called before the first frame update
@@ -43,6 +45,7 @@ public class BallController : MonoBehaviour
         rb2D = GetComponent<Rigidbody2D>();
         textMeshPro = GetComponent<TextMeshProUGUI>();
         spriteRenderer = GetComponent<SpriteRenderer>();
+        audio = GetComponent<AudioSource>();
     }
     private void Update()
     {
@@ -51,13 +54,19 @@ public class BallController : MonoBehaviour
         {
             ingame = false;
             TextWindow.GetComponent<TextMeshProUGUI>().text = "Red Win";
-            if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetGame();
+            if (Input.GetKeyDown(KeyCode.Space) && ingame == false)
+            {
+                ResetGame();
+            }
         }
         if (P2ScoreValue == 5)
         {
             ingame = false;
             TextWindow.GetComponent<TextMeshProUGUI>().text = "Blue Win";
-            if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetGame();
+            if (Input.GetKeyDown(KeyCode.Space) && ingame == false)
+            {
+                ResetGame();
+            }
         }
         if (Input.GetKeyDown(KeyCode.Space) && ingame == false) ResetAndSendBallInRandomDirection();
     }
@@ -117,6 +126,7 @@ public class BallController : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        audio.Play();
         if (collision.gameObject.CompareTag("Red"))
         {
             spriteRenderer.color = Color.red;
